@@ -32,10 +32,26 @@ my $boggle = {
 	c3 => 't'
 };
 
+my $MIN_WORD_LEN = 4;
+my $MAX_WORD_LEN = 8;
+
+print <<EOD;
+$boggle->{"a1"} $boggle->{"a2"} $boggle->{"a3"}
+$boggle->{"b1"} $boggle->{"b2"} $boggle->{"b3"}
+$boggle->{"c1"} $boggle->{"c2"} $boggle->{"c3"}
+EOD
+
+my $words;
+open(F, "<words.txt");
+while (my $word = (<F>)) {
+	chop $word;
+	$words->{$word} = 1;
+};
+
 my $max_word_len=3;
 
 my @boggle_squares = qw(a1 a2 a3 b1 b2 b3 c1 c2 c3);
-my @boggle_squares = qw(a1 a2 );
+my @boggle_squares = qw(a1 a2 a3);
 foreach my $square (@boggle_squares) {
 	my @contains = ($square);
 
@@ -43,7 +59,7 @@ foreach my $square (@boggle_squares) {
 
 	#RECURSE($square, @contains) while $len < $max_word_len;
 	my %v; #visited
-	my $chain = $square;
+	my $chain = $boggle->{square};
 	travel($square, $chain, %v);
 	
 
@@ -52,7 +68,7 @@ foreach my $square (@boggle_squares) {
 sub travel {
 	my ($square, $chain, %v) = @_;
 	$v{$square}++;
-print "chain: [$chain]\n" if length($chain) > 5;
+print "chain: [$chain]\n" if length($chain) >= $MIN_WORD_LEN && exists $words->{$chain};
 #print Dumper \%v;
 	foreach my $c ( @{ $connected_to->{$square}  }) {
 		#print "   connection $c\n";
@@ -60,8 +76,8 @@ print "chain: [$chain]\n" if length($chain) > 5;
 			#print "Visited $c, skipping ($chain) \n";
 			next;
 		};
-		my $subchain = "$chain-$c";
-		if (length($subchain) >= 9) {
+		my $subchain = "${chain}$boggle->{$c}";
+		if (length($subchain) >= $MAX_WORD_LEN) {
 			#print "   length of chain [$subchain] too long, next\n";
 			last;
 		};
