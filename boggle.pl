@@ -1,5 +1,6 @@
 #!/usr/bin/perl
 use strict;
+use Data::Dumper;
 
 =item
 a1 a2 a3 
@@ -34,11 +35,37 @@ my $boggle = {
 my $max_word_len=3;
 
 my @boggle_squares = qw(a1 a2 a3 b1 b2 b3 c1 c2 c3);
+my @boggle_squares = qw(a1 );
 foreach my $square (@boggle_squares) {
 	my @contains = ($square);
 
 	my $word;
 
-	RECURSE($square, @contains) while $len < $max_word_len;
+	#RECURSE($square, @contains) while $len < $max_word_len;
+	my %v; #visited
+	my $chain = $square;
+	travel($square, $chain, %v);
+	
 
+};
+
+sub travel {
+	my ($square, $chain, %v) = @_;
+	$v{$square}++;
+print "chain: [$chain]\n";
+print Dumper \%v;
+	foreach my $c ( @{ $connected_to->{$square}  }) {
+		print "   connection $c\n";
+		if ($v{$c}) {
+			print "Visited $c, skipping ($chain) \n";
+			next;
+		};
+		my $subchain = "$chain-$c";
+		if (length($subchain) >= 9) {
+			print "   length of chain [$subchain] too long, next\n";
+			last;
+		};
+getc;
+		travel($c,$subchain,%v);
+	};
 };
